@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status Timeline</title>
+    <script src="https://cdn.plot.ly/plotly-2.11.1.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; }
+        #timeline-chart { width: 100%; }
+        .legend { display: flex; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+        .legend-item { display: flex; align-items: center; margin: 10px; }
+        .legend-color { width: 20px; height: 20px; margin-right: 10px; border: 1px solid #000; }
+    </style>
+    <script>
+        // Auto-refresh the page every 60 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 60000);
+    </script>
+</head>
+<body>
+    <h1>Device Status Timeline</h1>
+
+    <div class="legend" id="dynamic-legend"></div>
+
+    <div id="timeline-chart"></div>
+
+    <script>
+        fetch('/status-data')
+            .then(response => response.json())
+            .then(data => {
+                let traces = [];
+                let uniqueStates = new Set();
+                let colors = {
+                    "AVAILABLE": "lightgreen",
+                    "IN_USE": "lightgray",
+                    "REBOOTING": "orange",
+                    "OFFLINE": "red"
+                };
+
+                // Prepare traces and collect unique states
+                for (let device in data) {
+                    let states = data[device].state_changes.map(change => change[0]);
+                    let timestamps = data[device].state_changes.map(change => change[1]);
+
+                    // Add unique states to the set
+                    states.forEach(state => uniqueStates.add(state));
+
+                    traces.push({
+                        x: timestamps,
+                        y: Array(states.length).fill(device),
+                        mode: 'lines+markers',
+                        marker: {
+                            color: states.map(state => colors[state] || 'blue'),
+                            size: 10
+                        },
+                        line: { shape: 'hv' },
+                        name: device,
+                        text: states,
+                        hoverinfo: 'text+x',
+                        showlegend: false
+                    });
+                }
+
+                // Dynamically generate the legend
+                const legendContainer = document.getElementById('dynamic-legend');
+                uniqueStates.forEach(state => {
+                    const color = colors[state] || 'blue'; // Default color for undefined statuses
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.innerHTML = `
+                        <div class="legend-color" style="background-color: ${color};"></div>
+                        <span>${state}</span>
+                    `;
+                    legendContainer.appendChild(legendItem);
+                });
+
+                // Adjust plot height dynamically
+                let deviceCount = Object.keys(data).length;
+                let plotHeight = Math.max(600, deviceCount * 30);
+
+                // Render the plot
+                Plotly.newPlot('timeline-chart', traces, {
+                    title: 'Device Status Over Time',
+                    xaxis: { title: 'Timestamp' },
+                    yaxis: {
+                        title: 'Device',
+                        automargin: true,
+                        tickmode: 'array',
+                        tickvals: Object.keys(data),
+                        ticktext: Object.keys(data)
+                    },
+                    height: plotHeight
+                });
+            })
+            .catch(error => console.error('Error fetching status data:', error));
+    </script>
+</body>
+</html>

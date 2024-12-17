@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+            color: #555;
+        }
+
+        td div {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        /* Color styles for different states */
+        td div.available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        td div.in_use {
+            background-color: #e2e3e5;
+            color: #6c757d;
+        }
+
+        td div.rebooting {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        td div.offline {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        td div.default {
+            background-color: #e7e7e7;
+            color: #333;
+        }
+    </style>
+    <script>
+        // Auto-refresh the page every 60 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 60000);
+    </script>
+</head>
+<body>
+
+    <h1>Device Status Dashboard</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Device</th>
+                <th>In Use By</th>
+                {% for state in all_states %}
+                    <th>{{ state }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for descriptor, status in device_status.items() %}
+                <tr>
+                    <td>{{ descriptor }}</td>
+                    <td>{{ status.inUseBy }}</td>
+                    {% for state in all_states %}
+                        <td>
+                            {% if state in status.state_durations %}
+                                {% for log in status.state_change_log %}
+                                    {% if log.state == state %}
+                                        <div class="{{ state|replace(' ', '_')|lower }}">{{ log.timestamp }}</div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

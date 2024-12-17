@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  sfdc-device-monitor:
+    image: "$DOCKER_USERNAME/rdc-private-device-monitor:0.0.1"
+    extra_hosts:
+      - "rdc-private-device-monitor:127.0.0.1"
+    ports:
+      - "9080:9080"
+    environment:
+      SFDC_SAUCE_USERNAME: ${SFDC_SAUCE_USERNAME}
+      SFDC_SAUCE_ACCESS_KEY: ${SFDC_SAUCE_ACCESS_KEY}
+    command: "python3 /app/rdc-private-device-monitor.py"
