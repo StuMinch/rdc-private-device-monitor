@@ -34,3 +34,7 @@ Then cd into the rdc-private-device-monitor directory and build the Docker image
 Update the image reference in the compose.yaml
 
 ```image: "$DOCKER_USERNAME/rdc-private-device-monitor:0.0.1"```
+
+## Example Output
+
+![screenshot](images/example.png)
