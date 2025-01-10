@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .status-offline {
+            color: red;
+            font-weight: bold;
+        }
+        .status-maintenance {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-rebooting {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-cleaning {
+            color: blue;
+            font-weight: bold;
+        }
+        .status-in_use {
+            color: grey;
+            font-weight: bold;
+        }
+        .status-available {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        // Auto-refresh the page every 60 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 60000);
+    </script>
+</head>
+<body>
+    <h1>Device Status Summary</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Device Descriptor</th>
+                <th>Current Status</th>
+                <th>Duration (minutes)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in device_summary %}
+            <tr>
+                <td>{{ device.descriptor }}</td>
+                <td class="status-{{ device.current_state.lower() }}">{{ device.current_state }}</td>
+                <td>{{ device.duration }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
